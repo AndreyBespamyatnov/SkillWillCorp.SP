@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns:dm0="http://schemas.microsoft.com/VisualStudio/2008/DslTools/Core" dslVersion="1.0.0.0" Id="4cb4858b-ef28-4d12-8177-2e18fe9f5fcd" solutionId="4cb4858b-ef28-4d12-8177-2e18fe9f5fcd" resetWebServer="false" sharePointProductVersion="15.0" name="SkillWillCorp.SP.Offices" xmlns="http://schemas.microsoft.com/VisualStudio/2008/SharePointTools/PackageModel">
+  <assemblies>
+    <customAssembly location="SPMeta2.SSOM.dll" deploymentTarget="GlobalAssemblyCache" sourcePath="..\packages\SPMeta2.SSOM.Foundation.1.2.90\lib\net45\SPMeta2.SSOM.dll" />
+  </assemblies>
+  <features>
+    <featureReference itemId="d228f64c-06a0-4281-b2d1-9896a6698a4c" />
+  </features>
+</package>
