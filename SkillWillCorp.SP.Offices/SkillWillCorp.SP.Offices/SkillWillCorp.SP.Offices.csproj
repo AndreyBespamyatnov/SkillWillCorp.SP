@@ -80,6 +80,9 @@
     <None Include="Features\SkillWillCorp.SP.Offices.Site\SkillWillCorp.SP.Offices.Site.feature">
       <FeatureId>{d228f64c-06a0-4281-b2d1-9896a6698a4c}</FeatureId>
     </None>
+    <None Include="Images\SharePointProjectItem.spdata">
+      <SharePointProjectItemId>{355e6f62-b20c-483f-98bd-b2004eb7006a}</SharePointProjectItemId>
+    </None>
     <None Include="key.snk" />
     <None Include="packages.config" />
     <None Include="Package\Package.package">
@@ -89,11 +92,14 @@
       <DependentUpon>Package.package</DependentUpon>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Assets\" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="Features\SkillWillCorp.SP.Offices.Site\SkillWillCorp.SP.Offices.Site.Template.xml">
       <DependentUpon>SkillWillCorp.SP.Offices.Site.feature</DependentUpon>
     </Content>
+    <Content Include="Images\SkillWillCorp\Assets\SkillWillCorp_logo.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
