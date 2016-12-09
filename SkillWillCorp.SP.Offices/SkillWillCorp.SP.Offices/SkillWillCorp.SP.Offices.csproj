@@ -67,8 +67,8 @@
   <ItemGroup>
     <Compile Include="Constants.cs" />
     <Compile Include="EventReceiver\OfficesEventReceiver.cs" />
-    <Compile Include="Features\SkillWillCorp.SP.Offices.Site\SkillWillCorp.SP.Offices.EventReceiver.cs">
-      <DependentUpon>SkillWillCorp.SP.Offices.Site.feature</DependentUpon>
+    <Compile Include="Features\SkillWillCorp.SP.Offices.Web\SkillWillCorp.SP.Offices.Web.EventReceiver.cs">
+      <DependentUpon>SkillWillCorp.SP.Offices.Web.feature</DependentUpon>
     </Compile>
     <Compile Include="Logger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -77,7 +77,7 @@
     <Compile Include="SPUtility.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Features\SkillWillCorp.SP.Offices.Site\SkillWillCorp.SP.Offices.Site.feature">
+    <None Include="Features\SkillWillCorp.SP.Offices.Web\SkillWillCorp.SP.Offices.Web.feature">
       <FeatureId>{d228f64c-06a0-4281-b2d1-9896a6698a4c}</FeatureId>
     </None>
     <None Include="Images\SharePointProjectItem.spdata">
@@ -96,8 +96,8 @@
     <Folder Include="Assets\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Features\SkillWillCorp.SP.Offices.Site\SkillWillCorp.SP.Offices.Site.Template.xml">
-      <DependentUpon>SkillWillCorp.SP.Offices.Site.feature</DependentUpon>
+    <Content Include="Features\SkillWillCorp.SP.Offices.Web\SkillWillCorp.SP.Offices.Web.Template.xml">
+      <DependentUpon>SkillWillCorp.SP.Offices.Web.feature</DependentUpon>
     </Content>
     <Content Include="Images\SkillWillCorp\Assets\SkillWillCorp_logo.png" />
   </ItemGroup>
