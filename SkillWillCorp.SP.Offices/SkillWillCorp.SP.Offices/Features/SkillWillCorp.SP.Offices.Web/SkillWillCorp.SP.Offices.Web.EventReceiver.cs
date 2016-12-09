@@ -231,19 +231,19 @@ namespace SkillWillCorp.SP.Offices.Features.SkillWillCorp.SP.Offices.Site
                 SPWebService.ContentService.RemoteAdministratorAccessDenied = false;
 
                 Logger.WriteMessage("SkillWillCorp.SP.Offices.SkillWillCorpSPOfficesEventReceiver: Initialize new instance for ListSynchronizationJob");
-                var deleteJob = new ListSynchronizationJob(web.Site.WebApplication, web);
+                var copyJob = new ListSynchronizationJob(web.Site.WebApplication, web);
                 Logger.WriteMessage("SkillWillCorp.SP.Offices.SkillWillCorpSPOfficesEventReceiver: DeleteIfExistJob");
-                deleteJob.DeleteIfExistJob();
+                copyJob.DeleteIfExistJob();
                 Logger.WriteMessage("SkillWillCorp.SP.Offices.SkillWillCorpSPOfficesEventReceiver: Initialize SPMinuteSchedule");
                 var schedule = new SPMinuteSchedule { Interval = 30 };
-                deleteJob.Schedule = schedule;
-                Logger.WriteMessage("SkillWillCorp.SP.Offices.SkillWillCorpSPOfficesEventReceiver: Update deleteJob");
-                deleteJob.Update();
-                Logger.WriteMessage("SkillWillCorp.SP.Offices.SkillWillCorpSPOfficesEventReceiver: Start deleteJob");
+                copyJob.Schedule = schedule;
+                Logger.WriteMessage("SkillWillCorp.SP.Offices.SkillWillCorpSPOfficesEventReceiver: Update copyJob");
+                copyJob.Update();
+                Logger.WriteMessage("SkillWillCorp.SP.Offices.SkillWillCorpSPOfficesEventReceiver: Start copyJob");
 
                 try
                 {
-                    deleteJob.RunNow();
+                    copyJob.RunNow();
                 }
                 catch
                 {
