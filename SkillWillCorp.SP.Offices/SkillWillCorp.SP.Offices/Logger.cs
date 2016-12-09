@@ -15,12 +15,12 @@ namespace SkillWillCorp.SP.Offices
         private const string CATEGORY_MESSAGE = "SWCMessage";
 
 
-        /// <summary>Задает сообщению(message) нужный формат сообщение об ошибке и возвращает токен
+        /// <summary>
+        /// Specifies the message (message) the desired format error message and returns a token
         /// </summary>
-        /// <param name="message">Текст ошибки, понятный даже консультантам</param>
-        /// <param name="exceptionMessage">Полное сообщение исключения</param>
-        /// <param name="traceSeverity">Задает уровень данных трассировки, который записывается в файл журнала трассировки.</param>
-        /// <returns></returns>
+        /// <param name="message">The simple message text</param>
+        /// <param name="exceptionMessage">Full message text</param>
+        /// <param name="traceSeverity">Specifies the level of trace data that is written to the trace log file.</param>
         public static Guid WriteError(string message, string exceptionMessage, TraceSeverity traceSeverity)
         {
             if (Debugger.IsAttached)
@@ -38,44 +38,43 @@ namespace SkillWillCorp.SP.Offices
             return Logger.GetCurrentCorrelationToken();
         }
 
-        /// <summary>Печатает сообщение об ошибке и возвращает токен
+        /// <summary>
+        /// It prints an error message and returns a token
         /// </summary>
-        /// <param name="message">Текст ошибки, понятный даже консультантам</param>
-        /// <param name="ex">Полное сообщение исключения</param>
-        /// <param name="traceSeverity">Задает уровень данных трассировки, который записывается в файл журнала трассировки.</param>
-        /// <returns></returns>
+        /// <param name="message">The simple message text</param>
+        /// <param name="ex">Full message text</param>
+        /// <param name="traceSeverity">Specifies the level of trace data that is written to the trace log file.</param>
         public static Guid WriteError(string message, Exception ex, TraceSeverity traceSeverity)
         {
             return Logger.WriteError(message, Logger.GetMessageFromException(ex), traceSeverity);
         }
 
-        /// <summary>Печатает сообщение указанного формата с подставленными аргументами 
-        /// и возвращает токен
+        /// <summary>
+        /// Prints a message of the specified format with the substituted arguments and returns a token
         /// </summary>
-        /// <param name="formatWithFormat">Формат, возвращаемого сообщения</param>
-        /// <param name="args">Аргументы для подстановки</param>
-        /// <returns></returns>
+        /// <param name="formatWithFormat">The format of the returned message</param>
+        /// <param name="args">Arguments for substitution</param>
         public static Guid WriteMessage(string formatWithFormat, params object[] args)
         {
             return WriteMessage(String.Format(formatWithFormat, args));
         }
 
-        /// <summary>Печатает сообщение и возвращает токен
+        /// <summary>
+        /// Print the message and returns a token
         /// </summary>
-        /// <param name="message">Сообщение для печати</param>
-        /// <returns></returns>
+        /// <param name="message">Message to print</param>
         public static Guid WriteMessage(string message)
         {
-            SPDiagnosticsCategory category = new SPDiagnosticsCategory(Logger.CATEGORY_MESSAGE, TraceSeverity.Medium, EventSeverity.Information);
-            SPDiagnosticsArea area = new SPDiagnosticsArea(Logger.AREA, new SPDiagnosticsCategory[] { category });
+            var category = new SPDiagnosticsCategory(Logger.CATEGORY_MESSAGE, TraceSeverity.Medium, EventSeverity.Information);
+            var area = new SPDiagnosticsArea(Logger.AREA, new SPDiagnosticsCategory[] { category });
             SPDiagnosticsService.Local.WriteTrace(0, area.Categories[Logger.CATEGORY_MESSAGE], TraceSeverity.Medium, message);
             return Logger.GetCurrentCorrelationToken();
         }
 
-        /// <summary>Генерирует и возвращает сообщение по указанном исключению
+        /// <summary>
+        /// Generates and returns a message to the specified exception
         /// </summary>
-        /// <param name="ex">Исключение для извлечения сообщения из него</param>
-        /// <returns></returns>
+        /// <param name="ex">An exception to retrieve a message from him</param>
         public static string GetMessageFromException(Exception ex)
         {
             return (ex != null
@@ -88,9 +87,9 @@ namespace SkillWillCorp.SP.Offices
                 : string.Empty);
         }
 
-        /// <summary>Возвращает текущий токен корреляции
+        /// <summary>
+        /// Returns the current correlation token
         /// </summary>
-        /// <returns></returns>
         public static Guid GetCurrentCorrelationToken()
         {
             Guid correlationToken = Guid.Empty;

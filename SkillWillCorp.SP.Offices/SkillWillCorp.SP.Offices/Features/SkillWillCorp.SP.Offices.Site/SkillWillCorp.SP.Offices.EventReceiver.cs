@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Microsoft.SharePoint;
-using SkillWillCorp.SP.Offices.Provisioning.Jobs;
+using SkillWillCorp.SP.Offices.Jobs;
 using SPMeta2.Definitions;
 using SPMeta2.Enumerations;
 using SPMeta2.SSOM.Services;
@@ -36,7 +36,7 @@ namespace SkillWillCorp.SP.Offices.Features.SkillWillCorp.SP.Offices.Site
                 Title = "Name",
                 InternalName = Constants.Fields.NameFieldInternalName,
                 Group = "SWC.Offices",
-                Id = new Guid("BA13C7FB-63C2-49FB-92BA-DF0518A1865C"),
+                Id = new Guid(Constants.Fields.NameFieldInternalNameId),
                 AddToDefaultView = true,
                 FieldType = BuiltInFieldTypes.Text,
                 Required = true
@@ -47,7 +47,7 @@ namespace SkillWillCorp.SP.Offices.Features.SkillWillCorp.SP.Offices.Site
                 Title = "Director (User)",
                 InternalName = Constants.Fields.DirectorFieldInternalName,
                 Group = "SWC.Offices",
-                Id = new Guid("42F048A2-DC3B-417D-BE3D-77549CA2EC83"),
+                Id = new Guid(Constants.Fields.DirectorFieldInternalNameId),
                 AddToDefaultView = true,
                 FieldType = BuiltInFieldTypes.User,
                 Required = true
@@ -78,7 +78,7 @@ namespace SkillWillCorp.SP.Offices.Features.SkillWillCorp.SP.Offices.Site
                 Title = "Office Members (Users)",
                 InternalName = Constants.Fields.MembersFieldInternalName,
                 Group = "SWC.Offices",
-                Id = new Guid("C4EAE3A6-A2DB-422C-A748-0D278FB04FE0"),
+                Id = new Guid(Constants.Fields.MembersFieldInternalNameId),
                 AddToDefaultView = true,
                 FieldType = BuiltInFieldTypes.UserMulti,
                 Required = true,
@@ -92,11 +92,11 @@ namespace SkillWillCorp.SP.Offices.Features.SkillWillCorp.SP.Offices.Site
             var fieldIsCopiedField = new FieldDefinition
             {
                 Title = "Field is copied",
-                InternalName = "swc_FieldIsCopied",
+                InternalName = Constants.Fields.FieldIsCopiedFieldInternalName,
                 Group = "SWC.Offices",
                 AddToDefaultView = false,
                 Hidden = true,
-                Id = new Guid("BD71C005-F09B-48DA-9921-C76AC01A20E0"),
+                Id = new Guid(Constants.Fields.FieldIsCopiedFieldInternalNameId),
                 FieldType = BuiltInFieldTypes.Boolean
             };
 
@@ -166,6 +166,7 @@ namespace SkillWillCorp.SP.Offices.Features.SkillWillCorp.SP.Offices.Site
                     list.AddField(descriptionField);
                     list.AddField(officeCodeField);
                     list.AddField(officeMembersField);
+                    list.AddField(fieldIsCopiedField);
 
                     list.AddEventReceivers(new List<EventReceiverDefinition>
                     {
@@ -181,8 +182,6 @@ namespace SkillWillCorp.SP.Offices.Features.SkillWillCorp.SP.Offices.Site
                 });
             });
 
-            Debugger.Break();
-
             SPWeb spWeb = site.RootWeb;
             var csomProvisionService = new SSOMProvisionService();
             csomProvisionService.DeployWebModel(spWeb, model);
@@ -191,17 +190,20 @@ namespace SkillWillCorp.SP.Offices.Features.SkillWillCorp.SP.Offices.Site
         }
 
         /// <summary> 
-        /// Создаем/обновляем джоб для удаления неиспользуемых элементов
+        /// Create / update Job to copy items
         /// </summary>
         private static void CreateDeleteJob(SPWeb web)
         {
-            Logger.WriteMessage("SkillWillCorp.SP.Offices.SkillWillCorpSPOfficesEventReceiver: Создаем таймеры для копирования элементов");
-            var deleteJob = new ListSynchronizationJob(web.Site.WebApplication, web);
-            deleteJob.DeleteIfExistJob();
-            var schedule = new SPMinuteSchedule { Interval = 30 };
-            deleteJob.Schedule = schedule;
-            deleteJob.Update();
-            deleteJob.RunNow();
+            Logger.WriteMessage("SkillWillCorp.SP.Offices.SkillWillCorpSPOfficesEventReceiver: Create timers to copy elements");
+            SPSecurity.RunWithElevatedPrivileges(delegate
+            {
+                var deleteJob = new ListSynchronizationJob(web.Site.WebApplication, web);
+                deleteJob.DeleteIfExistJob();
+                var schedule = new SPMinuteSchedule { Interval = 30 };
+                deleteJob.Schedule = schedule;
+                deleteJob.Update();
+                deleteJob.RunNow();
+            });
         }
     }
 }

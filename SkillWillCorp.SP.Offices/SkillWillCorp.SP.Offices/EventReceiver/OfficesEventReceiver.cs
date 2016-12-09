@@ -19,9 +19,9 @@ namespace SkillWillCorp.SP.Offices.EventReceiver
 
             try
             {
-                var name = GetNameFieldValue(properties);
-                var director = GetDirectorFieldValue(properties);
-                var members = GetMembersFieldValue(properties);
+                var name = properties.ListItem.TryGetFieldValue(Constants.Fields.NameFieldInternalName, string.Empty);
+                var director = properties.ListItem.TryGetFieldUserValue(Constants.Fields.DirectorFieldInternalName);
+                var members = properties.ListItem.TryGetFieldUserValueCollection(Constants.Fields.MembersFieldInternalName);
                 if (IsNotValidate(name, director, members)) return;
 
                 CreateOrUpdateSubSite(properties.Site, name, properties.ListItemId, director, members);
@@ -50,9 +50,9 @@ namespace SkillWillCorp.SP.Offices.EventReceiver
         {
             try
             {
-                var name = GetNameFieldValue(properties);
-                var director = GetDirectorFieldValue(properties);
-                var members = GetMembersFieldValue(properties);
+                var name = properties.ListItem.TryGetFieldValue(Constants.Fields.NameFieldInternalName, string.Empty);
+                var director = properties.ListItem.TryGetFieldUserValue(Constants.Fields.DirectorFieldInternalName);
+                var members = properties.ListItem.TryGetFieldUserValueCollection(Constants.Fields.MembersFieldInternalName);
                 if (IsNotValidate(name, director, members)) return;
 
                 CreateOrUpdateSubSite(properties.Site, name, properties.ListItemId, director, members);
@@ -61,39 +61,6 @@ namespace SkillWillCorp.SP.Offices.EventReceiver
             {
                 Logger.WriteError(ex.ToString(), ex, TraceSeverity.Unexpected);
             }
-        }
-
-        private static string GetNameFieldValue(SPItemEventProperties properties)
-        {
-            SPList list = properties.Web.GetListUrl(Constants.Lists.OfficesListUrl);
-            SPField field = list.Fields.TryGetFieldByStaticName(Constants.Fields.NameFieldInternalName);
-            var name = properties.ListItem[field.Id] as string;
-            return name;
-        }
-
-        private static SPFieldUserValue GetDirectorFieldValue(SPItemEventProperties properties)
-        {
-            SPList list = properties.Web.GetListUrl(Constants.Lists.OfficesListUrl);
-            var field = list.Fields.TryGetFieldByStaticName(Constants.Fields.DirectorFieldInternalName) as SPFieldUser;
-            if (field == null || properties.ListItem[field.Id] == null)
-            {
-                return null;
-            }
-
-            var directorUser = new SPFieldUserValue(properties.Site.RootWeb, properties.ListItem[field.Id].ToString());
-            return directorUser;
-        }
-        private static SPFieldUserValueCollection GetMembersFieldValue(SPItemEventProperties properties)
-        {
-            SPList list = properties.Web.GetListUrl(Constants.Lists.OfficesListUrl);
-            var field = list.Fields.TryGetFieldByStaticName(Constants.Fields.MembersFieldInternalName) as SPFieldUser;
-            if (field == null || properties.ListItem[field.Id] == null)
-            {
-                return null;
-            }
-
-            var directorUser = new SPFieldUserValueCollection(properties.Site.RootWeb, properties.ListItem[field.Id].ToString());
-            return directorUser;
         }
 
         private bool IsNotValidate(string name, SPFieldUserValue director, SPFieldUserValueCollection members)
@@ -107,8 +74,8 @@ namespace SkillWillCorp.SP.Offices.EventReceiver
 
         private static void CreateOrUpdateSubSite(SPSite spSite, string siteName, int itemId, SPFieldUserValue director,  SPFieldUserValueCollection members)
         {
+            const string securityGroupNameFormat = "{0} - {1}";
             string siteUrl = "user-web-" + itemId;
-            string securityGroupNameFormat = "{0} - {1}";
 
             var newWebDef = new WebDefinition
             {
@@ -212,10 +179,15 @@ namespace SkillWillCorp.SP.Offices.EventReceiver
         private static void DeleteSubSite(SPSite spSite, int itemId)
         {
             string siteUrl = "user-web-" + itemId;
-            SPWeb existWeb = spSite.AllWebs.SingleOrDefault(w => w.Url.Contains(siteUrl));
-            if (existWeb == null) return;
+            SPWeb existWeb = spSite.AllWebs[siteUrl];
+            if (existWeb == null)
+            {
+                Logger.WriteMessage("Web with url '{0}' was tryed ti delet, but not deleted", siteUrl);
+                return;
+            }
             existWeb.Delete();
             existWeb.Update();
+            Logger.WriteMessage("Web with url '{0}' was tryed ti delet and deleted successfuly", siteUrl);
         }
     }
 }

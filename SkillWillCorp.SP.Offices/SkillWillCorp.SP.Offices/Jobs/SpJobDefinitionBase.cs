@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.SharePoint;
 using Microsoft.SharePoint.Administration;
 
-namespace SkillWillCorp.SP.Offices.Provisioning.Jobs
+namespace SkillWillCorp.SP.Offices.Jobs
 {
     public abstract class SpJobDefinitionBase : SPJobDefinition
     {
@@ -50,12 +50,12 @@ namespace SkillWillCorp.SP.Offices.Provisioning.Jobs
         {
             if (string.IsNullOrEmpty(SiteUrl))
             {
-                Logger.WriteMessage(String.Format("Timer job {0} не может быть запущен, так как объект siteUrl пуст", Title));
+                Logger.WriteMessage(String.Format("Timer job {0} It can not be started, because the object is empty siteUrl", Title));
                 return false;
             }
             if (string.IsNullOrEmpty(WebUrl))
             {
-                Logger.WriteMessage(String.Format("Timer job {0} не может быть запущен, так как объект webUrl пуст", Title));
+                Logger.WriteMessage(String.Format("Timer job {0} It can not be started, because the object is empty webUrl", Title));
                 return false;
             }
 
@@ -63,8 +63,7 @@ namespace SkillWillCorp.SP.Offices.Provisioning.Jobs
         }
 
         /// <summary>
-        /// Используйте метод ProcessJob, этот метод вызывается если джоба прошла валидацию
-        /// и поля WebUrl и SiteUrl, были удачно инициализированны
+        /// Use the method ProcessJob, this method is called when Joba passed validation and field WebUrl and SiteUrl, have been successfully initialized
         /// </summary>
         public override void Execute(Guid targetInstanceId)
         {
@@ -78,5 +77,10 @@ namespace SkillWillCorp.SP.Offices.Provisioning.Jobs
         }
 
         protected abstract void ProcessJob(Guid targetInstanceId);
+
+        protected override bool HasAdditionalUpdateAccess()
+        {
+            return true;
+        }
     }
 }
