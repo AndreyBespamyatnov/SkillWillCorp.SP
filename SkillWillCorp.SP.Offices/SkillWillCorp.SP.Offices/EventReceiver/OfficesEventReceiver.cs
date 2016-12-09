@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.SharePoint;
 using Microsoft.SharePoint.Administration;
@@ -109,7 +110,15 @@ namespace SkillWillCorp.SP.Offices.EventReceiver
             string siteUrl = "user-web-" + itemId;
             string securityGroupNameFormat = "{0} - {1}";
 
-            var breakRoleInheritanceDefinition = new BreakRoleInheritanceDefinition
+            var newWebDef = new WebDefinition
+            {
+                Title = siteName,
+                Description = "",
+                Url = siteUrl,
+                WebTemplate = BuiltInWebTemplates.Collaboration.TeamSite
+            };
+
+            var newWebBreakRoleInheritance = new BreakRoleInheritanceDefinition
             {
                 CopyRoleAssignments = false
             };
@@ -117,22 +126,19 @@ namespace SkillWillCorp.SP.Offices.EventReceiver
             var ownersGroup = new SecurityGroupDefinition
             {
                 Name = string.Format(securityGroupNameFormat, siteName, Constants.SecurityGroups.OfficeOwners),
-                IsAssociatedOwnerGroup = true,
                 Owner = director.LoginName
             };
             var membersGroup = new SecurityGroupDefinition
             {
                 Name = string.Format(securityGroupNameFormat, siteName, Constants.SecurityGroups.OfficeMembers),
-                IsAssociatedMemberGroup = true,
                 Owner = director.LoginName
             };
             var visitorsGroup = new SecurityGroupDefinition
             {
                 Name = string.Format(securityGroupNameFormat, siteName, Constants.SecurityGroups.OfficeVisitors),
-                IsAssociatedVisitorsGroup = true,
                 Owner = director.LoginName
             };
-
+ 
             // site model with the groups
             var siteModel = SPMeta2Model.NewSiteModel(site =>
             {
@@ -140,41 +146,35 @@ namespace SkillWillCorp.SP.Offices.EventReceiver
                 site.AddSecurityGroup(membersGroup);
                 site.AddSecurityGroup(visitorsGroup);
             });
-
-            var webDefinition = new WebDefinition
-            {
-                Title = siteName,
-                Description = "",
-                Url = siteUrl,
-                WebTemplate = BuiltInWebTemplates.Collaboration.BlankSite,
-            };
+ 
             // web model
             var webModel = SPMeta2Model.NewWebModel(web =>
             {
-                web.AddWeb(webDefinition, addedWeb =>
+                web.AddWeb(newWebDef, publicProjectWeb =>
                 {
-                    addedWeb.AddBreakRoleInheritance(breakRoleInheritanceDefinition, resetWeb =>
+                    publicProjectWeb.AddBreakRoleInheritance(newWebBreakRoleInheritance, newResetWeb =>
                     {
                         // add group with owner permission
-                        resetWeb.AddSecurityGroupLink(ownersGroup, group =>
+                        newResetWeb.AddSecurityGroupLink(ownersGroup, group =>
                         {
-                            @group.AddSecurityRoleLink(new SecurityRoleLinkDefinition
+                            group.AddSecurityRoleLink(new SecurityRoleLinkDefinition
                             {
                                 SecurityRoleType = BuiltInSecurityRoleTypes.Administrator
                             });
                         });
                         // add group with contributor permission
-                        resetWeb.AddSecurityGroupLink(membersGroup, group =>
+                        newResetWeb.AddSecurityGroupLink(membersGroup, group =>
                         {
-                            @group.AddSecurityRoleLink(new SecurityRoleLinkDefinition
+                            group.AddSecurityRoleLink(new SecurityRoleLinkDefinition
                             {
                                 SecurityRoleType = BuiltInSecurityRoleTypes.Contributor
                             });
                         });
+ 
                         // add group with reader permission
-                        resetWeb.AddSecurityGroupLink(visitorsGroup, group =>
+                        newResetWeb.AddSecurityGroupLink(visitorsGroup, group =>
                         {
-                            @group.AddSecurityRoleLink(new SecurityRoleLinkDefinition
+                            group.AddSecurityRoleLink(new SecurityRoleLinkDefinition
                             {
                                 SecurityRoleType = BuiltInSecurityRoleTypes.Reader
                             });
@@ -182,6 +182,7 @@ namespace SkillWillCorp.SP.Offices.EventReceiver
                     });
                 });
             });
+
             var csomProvisionService = new SSOMProvisionService();
             csomProvisionService.DeploySiteModel(spSite, siteModel);
             csomProvisionService.DeployWebModel(spSite.RootWeb, webModel);
@@ -192,20 +193,19 @@ namespace SkillWillCorp.SP.Offices.EventReceiver
                 return;
             }
 
-            SPGroup spMembersGroup =
-                existWeb.SiteGroups.Cast<SPGroup>()
-                    .FirstOrDefault(
-                        siteGroup =>
-                            siteGroup.Name ==
-                            string.Format(securityGroupNameFormat, siteName, Constants.SecurityGroups.OfficeMembers));
-            if (spMembersGroup == null)
+            // add users to members group
+            SPGroup spOwnerGroup = existWeb.SiteGroups.Cast<SPGroup>().FirstOrDefault(siteGroup => siteGroup.Name == string.Format(securityGroupNameFormat, siteName, Constants.SecurityGroups.OfficeOwners));
+            if (spOwnerGroup != null)
             {
-                return;
+                spOwnerGroup.AddUser(director.User);
             }
-
-            foreach (SPFieldUserValue member in members)
+            SPGroup spMembersGroup = existWeb.SiteGroups.Cast<SPGroup>().FirstOrDefault(siteGroup => siteGroup.Name == string.Format(securityGroupNameFormat, siteName, Constants.SecurityGroups.OfficeMembers));
+            if (spMembersGroup != null)
             {
-                spMembersGroup.AddUser(member.User);
+                foreach (SPFieldUserValue member in members)
+                {
+                    spMembersGroup.AddUser(member.User);
+                }
             }
         }
 
